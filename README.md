@@ -130,7 +130,7 @@ The enhancements have been built and tested on Windows with Node.js and the Code
 
 ```bash
 git clone --branch deploy/combined-agent \
-  https://github.com/chadingTV/codex-discord.git
+  https://github.com/hayashijoseph/codex-discord.git
 cd codex-discord
 
 # macOS / Linux

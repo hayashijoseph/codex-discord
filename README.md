@@ -35,6 +35,9 @@ Because it reads local Codex thread storage under `~/.codex`, threads created in
 
 ## Key Features
 
+- Per-channel Codex model selection with `/model`
+- Per-channel reasoning effort configuration with `/reasoning`
+- Improved MCP approval handling and protection against oversized Discord embeds
 - Uses your logged-in Codex account via `codex login`
 - One Discord channel = one local project directory
 - Resume existing Codex threads from local `~/.codex` state
@@ -49,6 +52,50 @@ Because it reads local Codex thread storage under `~/.codex`, threads created in
 - SQLite-backed project/session mapping
 - Allowed-user whitelist, rate limiting, and path validation
 - Background launchers for macOS, Linux, and Windows
+
+
+## Enhancements in This Fork
+
+This fork extends the original Codex Discord Controller with per-channel model configuration and improved tool approval handling.
+
+### Per-Channel Model Selection
+
+Use `/model` to view or select the Codex model for the current Discord channel.
+
+- Select different models for different projects and channels.
+- Discover available models through the local Codex installation.
+- Save model preferences in SQLite so they persist across bot restarts.
+- Change a channel's model without affecting other channels.
+
+### Per-Channel Reasoning Effort
+
+Use `/reasoning` to view or configure reasoning effort for the current Discord channel.
+
+- Configure reasoning independently for each channel.
+- Use supported reasoning effort levels for Codex models.
+- Save reasoning preferences across bot restarts.
+- Manage model and reasoning settings directly from Discord.
+
+### Improved Tool Approval Handling
+
+This fork includes reliability improvements to Codex approval workflows.
+
+- Fixes MCP elicitation approval response handling.
+- Prevents Discord embed validation errors caused by command previews exceeding the 1,024-character field limit.
+- Truncates oversized approval descriptions safely while preserving the approval controls.
+- Maintains the existing Discord approval and denial workflow.
+
+### Compatibility
+
+These enhancements retain the original project's core functionality:
+
+- Local authentication through `codex login`, without requiring an OpenAI API key.
+- Channel-to-project directory mapping.
+- Existing Codex session management and thread resumption.
+- SQLite-backed configuration and session storage.
+- Existing Windows, Linux, and macOS launcher workflows.
+
+The enhancements have been built and tested on Windows with Node.js and the Codex CLI.
 
 ## How It Works
 
@@ -82,7 +129,8 @@ Because it reads local Codex thread storage under `~/.codex`, threads created in
 ## Installation
 
 ```bash
-git clone https://github.com/chadingTV/codex-discord.git
+git clone --branch deploy/combined-agent \
+  https://github.com/chadingTV/codex-discord.git
 cd codex-discord
 
 # macOS / Linux
@@ -91,6 +139,12 @@ cd codex-discord
 # Windows
 install.bat
 ```
+
+> **Windows users:** Run `install.bat` from Command Prompt
+> or PowerShell. For existing installations, back up `.env`
+> and `data.db*` before upgrading, and stop the bot before
+> replacing application files.
+
 
 ## Setup Guides
 
@@ -186,6 +240,8 @@ For setup screenshots and the full step-by-step install guide, see [SETUP.md](SE
 | `/queue list` | Show queued prompts for this channel |
 | `/queue clear` | Clear queued prompts |
 | `/clear-sessions` | Remove stored session mappings for the current project |
+| `/model` | View or select the Codex model for the current channel |
+| `/reasoning` | View or configure reasoning effort for the current channel |
 
 ## Typical Workflow
 

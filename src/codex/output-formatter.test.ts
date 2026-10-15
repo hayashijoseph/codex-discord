@@ -151,6 +151,40 @@ describe("createToolApprovalEmbed", () => {
     expect(descField?.value).toBe("List files");
   });
 
+  it("truncates long Bash commands to Discord's field limit", () => {
+    const command = "x".repeat(5000);
+    const { embed } = createToolApprovalEmbed(
+      "Bash",
+      { command },
+      "req-long",
+    );
+    const field = embed.data.fields?.find((f) => f.name === "Command");
+    expect(field).toBeDefined();
+    expect(field!.value.length).toBeLessThanOrEqual(1024);
+    expect(field!.value).toContain("(truncated)");
+    expect(field!.value).toMatch(/```$/);
+  });
+
+  it("truncates oversized descriptions and file paths", () => {
+    const bash = createToolApprovalEmbed(
+      "Bash",
+      { command: "echo ok", description: "d".repeat(5000) },
+      "req-description",
+    );
+    const description = bash.embed.data.fields?.find(
+      (f) => f.name === "Description",
+    );
+    expect(description!.value.length).toBeLessThanOrEqual(1024);
+
+    const edit = createToolApprovalEmbed(
+      "Edit",
+      { file_path: "p".repeat(5000) },
+      "req-path",
+    );
+    const file = edit.embed.data.fields?.find((f) => f.name === "File");
+    expect(file!.value.length).toBeLessThanOrEqual(1024);
+  });
+
   it("creates three buttons: approve, deny, approve-all", () => {
     const { row: approvalRow } = createToolApprovalEmbed("Write", { file_path: "/a" }, "req-789");
     const buttons = approvalRow.components;

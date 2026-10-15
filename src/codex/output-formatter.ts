@@ -7,6 +7,27 @@ import {
 } from "discord.js";
 import { L } from "../utils/i18n.js";
 
+const MAX_EMBED_FIELD_LENGTH = 1024;
+
+function truncateEmbedField(value: string): string {
+  if (value.length <= MAX_EMBED_FIELD_LENGTH) return value;
+  return value.slice(0, MAX_EMBED_FIELD_LENGTH - 16) + "... (truncated)";
+}
+
+function commandPreview(command: string): string {
+  const prefix = "```bash\n";
+  const suffix = "\n```";
+  const maxCommandLength =
+    MAX_EMBED_FIELD_LENGTH - prefix.length - suffix.length - 16;
+
+  const preview =
+    command.length > maxCommandLength
+      ? command.slice(0, maxCommandLength) + "... (truncated)"
+      : command;
+
+  return prefix + preview + suffix;
+}
+
 const MAX_DISCORD_LENGTH = 1900; // leave room for formatting
 
 export function formatStreamChunk(text: string): string {
@@ -97,7 +118,7 @@ export function createToolApprovalEmbed(
   // Add relevant fields based on tool type
   if (toolName === "Edit" || toolName === "Write") {
     const filePath = (input.file_path as string) ?? "unknown";
-    embed.addFields({ name: L("File", "파일"), value: `\`${filePath}\``, inline: false });
+    embed.addFields({ name: L("File", "파일"), value: truncateEmbedField(`\`${filePath}\``), inline: false });
 
     if (input.old_string && input.new_string) {
       const diff = `\`\`\`diff\n- ${String(input.old_string).slice(0, 500)}\n+ ${String(input.new_string).slice(0, 500)}\n\`\`\``;
@@ -114,10 +135,10 @@ export function createToolApprovalEmbed(
     const command = (input.command as string) ?? "unknown";
     const description = (input.description as string) ?? "";
     embed.addFields(
-      { name: L("Command", "명령어"), value: `\`\`\`bash\n${command}\n\`\`\``, inline: false },
+      { name: L("Command", "명령어"), value: commandPreview(command), inline: false },
     );
     if (description) {
-      embed.addFields({ name: L("Description", "설명"), value: description, inline: false });
+      embed.addFields({ name: L("Description", "설명"), value: truncateEmbedField(description), inline: false });
     }
   } else {
     // Generic tool display - skip empty input
